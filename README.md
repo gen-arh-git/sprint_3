@@ -1,3 +1,7 @@
+# Спринт 3
+
+[Решение описано в файле Project_template_part_1.md](https://github.com/gen-arh-git/sprint_3/blob/main/Project_template_part_1.md)
+
 # Базовая настройка
 
 ## Запуск minikube

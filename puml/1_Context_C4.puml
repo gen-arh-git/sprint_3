@@ -1,0 +1,16 @@
+@startuml
+
+!include <C4/C4_Context>
+title Warm House Context Diagram
+
+Person(User, "Пользователь")
+System(WarmHouseSystem, "Теплый дом")
+
+System_Ext(Device, "Device", "Физические реле и устройства")
+System_Ext(Sensor, "Sensor", "Датчики температуры")
+
+Rel(User, WarmHouseSystem, "Web client", "HTTPS")
+Rel(WarmHouseSystem, Device, "Управление устройствами, изменение температуры", "HTTPS")
+Rel(WarmHouseSystem, Sensor, "Запросы показания температуры", "HTTPS")
+
+@enduml

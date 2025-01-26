@@ -1,0 +1,83 @@
+@startuml
+
+!include <C4/C4_Component>
+title Smart Home Component Diagram
+
+Container_Boundary(UserManagement, "Регистрация, авторизация пользователей") {
+  Container(WebUser, "User Management", "Java, Spring")
+  Container(Database, "UserDB", "PostgreSQL", "Данные о пользоввателях")
+}
+
+Container(WebUser, "Web Application", "Java") {
+  Component(AuthController, "AuthController", "Выполняет проверку подлинности и авторизацию")
+  Component(UserController, "UserController", "Управляет профилями пользователей")
+  Component(MessegeController, "MessegeController", "Управляет сообщениями")
+  Component(ServiceLayer, "Service Layer", "Business logic")
+  Component(RepositoryLayer, "Repository Layer", "Data access logic")
+}
+
+Rel(AuthController,ServiceLayer,"Calls business logic")
+Rel(UserController,ServiceLayer,"Calls business logic")
+Rel(MessegeController,ServiceLayer,"Calls business logic")
+Rel(ServiceLayer,RepositoryLayer,"Reads/Writes data")
+Rel(RepositoryLayer,Database,"Reads/Writes user data")
+
+
+
+Container_Boundary(DeviceManagement, "Регистрация, настройка устройств") {
+  Container(WebDevice, "Device Management", "Java")
+  Container(DatabaseDevice, "DeviceDB", "PostgreSQL", "Данные об устройствах")
+}
+
+Container(WebDevice, "Web Application", "Java") {
+  Component(AddDevice, "AddDevice", "Регистрация устройства ")
+  Component(DelDevice, "DelDevice", "Удаление устройства")
+  Component(ServiceDevice, "Service Device", "Business logic")
+  Component(RepositoryDevice, "Repository Device", "Data access logic")
+}
+
+Rel(AddDevice,ServiceDevice,"Calls business logic")
+Rel(DelDevice,ServiceDevice,"Calls business logic")
+Rel(ServiceDevice,RepositoryDevice,"Reads/Writes data")
+Rel(RepositoryDevice,DatabaseDevice,"Reads/Writes user data")
+
+System_Ext(Device, "Физические реле и устройства")
+System_Ext(Sensor, "Датчики температуры")
+Container(Kafka,"Kafka", "Система обмена сообщениями")
+
+Container_Boundary(DeviceService, "Управление устройствами") {
+	Container(WebDeviceService, "Device Service", "Java")
+	Container(DatabaseDeviceLog, "Device Log DB", "PostgreSQL", "Данные об устройствах")
+	'ComponentQueue(DeviceKafka,"Kafka")
+}
+
+Container(WebDeviceService, "Web Application", "Java") {
+	Component(DeviceController, "Контроллер устройств")
+	Component(DeviceCommand, "Обработчик команд")
+	Component(RepositoryDeviceService, "Repository Device", "Data access logic")
+}
+
+Rel(DeviceCommand,RepositoryDeviceService,"Reads/Writes data")
+Rel(RepositoryDeviceService,DatabaseDeviceLog,"Reads/Writes user data")
+Rel(DeviceController, DeviceCommand, "Uses")
+Rel(DeviceService, Kafka, "Publish")
+
+
+Container_Boundary(SensorService, "Управление устройствами") {
+	Container(WebSensorService, "Sensor Service", "Java")
+	Container(DatabaseSensorLog, "Sensor Log DB", "PostgreSQL", "Данные об устройствах")
+	'ComponentQueue(DeviceKafka,"Kafka")
+}
+
+Container(WebSensorService, "Web Application", "Java") {
+	Component(SensorController, "Контроллер датчиков")
+	Component(SensorCommand, "Получение информации")
+	Component(RepositorySensorService, "Repository Sensor", "Data access logic")
+}
+
+Rel(SensorCommand,RepositorySensorService,"Reads/Writes data")
+Rel(RepositorySensorService,DatabaseSensorLog,"Reads/Writes user data")
+Rel(SensorController, SensorCommand, "Uses")
+Rel(SensorService, Kafka, "Publish")
+
+@enduml
