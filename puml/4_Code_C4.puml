@@ -1,0 +1,54 @@
+@startuml
+
+title Class Diagram - сценарий отопления 
+
+package "Heating Service" {
+	class HeatingWorker {
+	  + HeatingAnalysis ()
+	  + HeatingRepository(document: Object)
+	}
+	
+	class HeatingAnalysis {
+	  - GetCurrentTemperature SensorAdapter
+	  - TemperatureSensorAdapter sensorAdapter
+	  + updateHeatingStatus()
+	}
+
+	class UserApplication {
+		+ HeatingModeCreation(request: ScenarioRequest): HeatingMode
+        + HandleModeEdit(id: Guid, request: ScenarioRequest): HeatingMode
+        + HeatingWorker()
+	}
+	
+	class HeatingMode {
+		- id: guid
+		- Device: guid
+		- Sensor: guid
+		- Value: float
+	}
+}
+
+package "Database" {
+	class HeatingRepository {
+		+ Save(document: Object): void
+	}
+}
+
+package "External" {
+	class SensorAdapter {
+		+ GetCurrentTemperature(): float
+	}
+	class DeviceAdapter {
+		+ PutCommand(document: Object): void
+	}
+}
+
+HeatingWorker --> HeatingAnalysis: task
+HeatingWorker --> HeatingRepository: task
+HeatingWorker --> SensorAdapter: task
+HeatingWorker --> DeviceAdapter: task
+HeatingWorker --> HeatingMode: task
+UserApplication --> HeatingMode: user
+HeatingMode --> HeatingRepository: user
+
+@enduml

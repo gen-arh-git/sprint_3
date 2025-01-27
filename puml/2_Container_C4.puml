@@ -1,0 +1,51 @@
+@startuml
+
+!include <C4/C4_Container>
+title Smart Home Container Diagram
+
+Person(User, "User", "Пользователь")
+
+System_Boundary(system, "Умный дом - микросервисная архитектура") {
+	Container(webApp, "Web Application", "Java, Spring")
+	Container(apiGateway, "API Gateway", "Kong")
+	Container_Boundary(microservices, "Kubernates") {
+		Container(UserManagement, "User Management", "Java", "Регистрация, авторизация пользователей")
+		ContainerDb(UserDB, "User DB", "PostgreSQL", "Данные о пользоввателях")
+		
+		Container(DeviceManagement, "Device Management", "Java", "Регистрация, настройка устройств")
+		ContainerDb(DeviceDB, "Device DB", "PostgreSQL", "Данные об устройствах")
+		
+		Container(DeviceService, "Device Service", "Java", "Управление устройствами")
+		ContainerDb(DeviceLogDB, "Device Log DB", "PostgreSQL", "Логи состяния устройтсв")
+		
+		Container(SensorService, "Sensor Service", "Java", "Уведомления датчиков")
+		ContainerDb(SensorLogDB, "Sensor Log DB", "PostgreSQL", "Логи состяния сенсоров")
+		
+		Container(Kafka, "Kafka", "Messaging Service", "Система обмена сообщениями")
+  }
+}
+
+System_Ext(Device, "Device", "Физические реле и устройства")
+System_Ext(Sensor, "Sensor", "Датчики температуры")
+
+Rel(User, webApp, "rest/https")
+Rel(webApp, apiGateway, "rest/https")
+Rel(apiGateway, UserManagement, "rest/https")
+Rel(apiGateway, DeviceManagement, "rest/https")
+Rel(apiGateway, DeviceService, "rest/https")
+Rel(apiGateway, SensorService, "rest/https")
+
+Rel(UserManagement, UserDB, "jdbc")
+Rel(DeviceManagement, DeviceDB, "jdbc")
+Rel(DeviceService, DeviceLogDB, "jdbc")
+Rel(SensorService, SensorLogDB, "jdbc")
+
+Rel(Sensor, Kafka, "Собщения от датчиков")
+Rel(Kafka, SensorService, "Подписка на телеметрию")
+Rel(SensorService, Kafka, "Публикует события состояния")
+
+Rel(Device, Kafka, "Регистрация, Команды включения и выключения")
+Rel(Kafka, Device, "Публикует команды для реле и устройства")
+Rel(DeviceService, Kafka, "Подписка на статусы")
+
+@enduml

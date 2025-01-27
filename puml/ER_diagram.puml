@@ -1,0 +1,66 @@
+@startuml
+
+!define primary_key(x) <b>x</b>
+!define foreign_key(x) <u>x</u>
+
+entity "User" as User {
+  + primary_key(id): UUID
+  --
+  name: String
+  email: String
+  password_hash: String
+  created_at: DateTime
+}
+
+entity "House" as House {
+  + primary_key(id): UUID
+  --
+  + foreign_key(user): UUID [FK -> User.id]
+  name: String
+  address: String
+  created_at: DateTime
+}
+
+entity "Module" as Module {
+  + primary_key(id): UUID
+  --
+  + foreign_key(house): UUID [FK -> House.id]
+  name: String
+  description: String
+  created_at: DateTime
+}
+
+entity "Device" as Device {
+  + primary_key(id): UUID
+  --
+  + foreign_key(type): UUID [FK -> DeviceType.id]
+  + foreign_key(module): UUID [FK -> Module.id]
+  serial_number: String
+  status: String
+  created_at: DateTime
+}
+
+entity "DeviceType" as DeviceType {
+  + primary_key(id): UUID
+  --
+  name: String
+  model: String
+  description: String
+  created_at: DateTime
+}
+
+entity "Telemetry" as Telemetry {
+  + primary_key(id): UUID 
+  --
+  + foreign_key(Device): UUID [FK -> Device.id]
+  value: String
+  created_at: DateTime
+}
+
+User       ||--|{ House:     "1:N"
+House      ||--|{ Module:    "1:N"
+Module     ||--|{ Device:    "1:N"
+Device     ||--|{ Telemetry: "1:N"
+DeviceType ||--|{ Device:    "1:N"
+
+@enduml
